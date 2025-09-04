@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import cv2 
+import time
 
 MIX_FACTOR_A = 0.2
 MIX_FACTOR_B = 1 - MIX_FACTOR_A
@@ -8,6 +9,7 @@ BLUR_AMOUNT = 9
 
 cap = cv2.VideoCapture(0)
 
+last_time = time.time()
 while cap.isOpened():
     ret, im_base = cap.read()
     if not ret:
@@ -21,9 +23,14 @@ while cap.isOpened():
                                  0) if 'im_running' in locals() else im_edges_color
     im_output = cv2.subtract(im_base, im_running)
 
-    cv2.imshow('frame', im_output)
-    if cv2.waitKey(20) == ord('q'):
+    if cv2.waitKey(1) == ord('q'):
         break
+    this_time = time.time()
+    fps = 1 / (this_time - last_time)
+    fps_text = f"{fps:.1f} fps"
+    cv2.putText(im_output, fps_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    cv2.imshow('frame', im_output)
+    last_time = this_time
 
 cap.release()
 cv2.destroyAllWindows()
